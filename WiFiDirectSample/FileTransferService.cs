@@ -7,6 +7,7 @@ using Java.Net;
 
 namespace com.example.android.wifidirect
 {
+    [Service]
     public class FileTransferService: IntentService
     {
         private const int SocketTimeout = 5000;

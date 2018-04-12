@@ -61,7 +61,7 @@ namespace com.example.android.wifidirect
 
         public override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
-            if (requestCode == 30)
+            if (requestCode == ChooseFileResultCode)
             {
                 var uri = data.Data;
                 var statusText = _contentView.FindViewById<TextView>(Resource.Id.status_text);
