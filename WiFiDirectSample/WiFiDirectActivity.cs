@@ -59,10 +59,9 @@ namespace com.example.android.wifidirect
         {
             var fragmentList = FragmentManager.FindFragmentById<DeviceListFragment>(Resource.Id.frag_list);
             var fragmentDetails = FragmentManager.FindFragmentById<DeviceDetailFragment>(Resource.Id.frag_detail);
-            if (fragmentList != null)
-                fragmentList.ClearPeers();
-            if (fragmentDetails != null)
-                fragmentDetails.ResetViews();
+
+            fragmentList?.ClearPeers();
+            fragmentDetails?.ResetViews();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)

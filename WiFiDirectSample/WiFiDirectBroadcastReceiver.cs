@@ -51,11 +51,8 @@ namespace com.example.android.wifidirect
                 // request available peers from the wifi p2p manager. This is an
                 // asynchronous call and the calling activity is notified with a
                 // callback on PeerListListener.onPeersAvailable()
-                if (_manager != null)
-                {
-                    _manager.RequestPeers(_channel,
-                                          _activity.FragmentManager.FindFragmentById<DeviceListFragment>(Resource.Id.frag_list));
-                }
+                _manager?.RequestPeers(_channel,
+                    _activity.FragmentManager.FindFragmentById<DeviceListFragment>(Resource.Id.frag_list));
                 Log.Debug(WiFiDirectActivity.Tag, "P2P peers changed");
             }
             else if (WifiP2pManager.WifiP2pConnectionChangedAction.Equals(action))
