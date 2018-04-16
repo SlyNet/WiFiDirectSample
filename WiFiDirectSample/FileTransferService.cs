@@ -1,9 +1,12 @@
-using System;
 using System.IO;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using Android.Util;
+using Android.Widget;
+using Java.Lang;
 using Java.Net;
+using String = System.String;
 
 namespace com.example.android.wifidirect
 {
@@ -54,28 +57,30 @@ namespace com.example.android.wifidirect
                     {
                         Log.Debug(WiFiDirectActivity.Tag, e.ToString());
                     }
+
                     DeviceDetailFragment.CopyFile(inputStream, stream);
                     Log.Debug(WiFiDirectActivity.Tag, "Client: Data written");
                 }
+                catch (Java.Net.ConnectException connect)
+                {
+                    Log.Error(WiFiDirectActivity.Tag, connect.Message);
+                }
                 catch (IOException e)
                 {
-                    Log.Debug(WiFiDirectActivity.Tag, e.Message);
+                    Log.Error(WiFiDirectActivity.Tag, e.Message);
                 }
                 finally
                 {
-                    if (socket != null)
+                    if (socket.IsConnected)
                     {
-                        if (socket.IsConnected)
+                        try
                         {
-                            try
-                            {
-                                socket.Close();
-                            }
-                            catch (IOException e)
-                            {
-                                // Give up
-                                Log.Debug(WiFiDirectActivity.Tag, "Gave up on closing socket " + e.StackTrace);
-                            }
+                            socket.Close();
+                        }
+                        catch (IOException e)
+                        {
+                            // Give up
+                            Log.Debug(WiFiDirectActivity.Tag, "Gave up on closing socket " + e.StackTrace);
                         }
                     }
                 }

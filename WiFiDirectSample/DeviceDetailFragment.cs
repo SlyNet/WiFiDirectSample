@@ -35,7 +35,8 @@ namespace com.example.android.wifidirect
                             Wps =
                                 {
                                     Setup = WpsInfo.Pbc
-                                }
+                                },
+                            GroupOwnerIntent = 15
                         };
                     if (_progressDialog != null && _progressDialog.IsShowing)
                         _progressDialog.Dismiss();
@@ -151,7 +152,7 @@ namespace com.example.android.wifidirect
             _contentView.FindViewById<Button>(Resource.Id.btn_connect).Visibility = ViewStates.Gone;
         }
 
-        public static bool CopyFile(Stream inputStream, Stream outputStream)
+        public static void CopyFile(Stream inputStream, Stream outputStream)
         {
             var buf = new byte[1024];
             try
@@ -165,9 +166,7 @@ namespace com.example.android.wifidirect
             catch (Exception e)
             {
                 Log.Debug(WiFiDirectActivity.Tag, e.ToString());
-                return false;
             }
-            return true;
         }
 
         /// <summary>
