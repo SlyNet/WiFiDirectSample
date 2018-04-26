@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using com.example.android.wifidirect.Communication;
 using Java.Net;
 using Environment = Android.OS.Environment;
 using File = Java.IO.File;
@@ -30,14 +31,14 @@ namespace com.example.android.wifidirect
             _contentView.FindViewById<Button>(Resource.Id.btn_connect).Click += (sender, args) =>
                 {
                     var config = new WifiP2pConfig
-                        {
-                            DeviceAddress = _device.DeviceAddress, 
-                            Wps =
+                    {
+                        DeviceAddress = _device.DeviceAddress,
+                        Wps =
                                 {
                                     Setup = WpsInfo.Pbc
                                 },
-                            GroupOwnerIntent = 15
-                        };
+                        GroupOwnerIntent = -15
+                    };
                     if (_progressDialog != null && _progressDialog.IsShowing)
                         _progressDialog.Dismiss();
 
@@ -47,7 +48,7 @@ namespace com.example.android.wifidirect
                     ((IDeviceActionListener)Activity).Connect(config);
                 };
 
-            _contentView.FindViewById<Button>(Resource.Id.btn_disconnect).Click += (sender, args) => 
+            _contentView.FindViewById<Button>(Resource.Id.btn_disconnect).Click += (sender, args) =>
                 ((IDeviceActionListener)Activity).Disconnect();
 
             _contentView.FindViewById<Button>(Resource.Id.btn_start_client).Click += (sender, args) =>
@@ -68,7 +69,7 @@ namespace com.example.android.wifidirect
                 var statusText = _contentView.FindViewById<TextView>(Resource.Id.status_text);
                 statusText.Text = "Sending: " + uri;
                 Log.Debug(WiFiDirectActivity.Tag, "Intent---------- " + uri);
-                var serviceIntent = new Intent(Activity, typeof (FileTransferService));
+                var serviceIntent = new Intent(Activity, typeof(FileTransferService));
                 serviceIntent.SetAction(FileTransferService.ActionSendFile);
                 serviceIntent.PutExtra(FileTransferService.ExtrasFilePath, uri.ToString());
                 serviceIntent.PutExtra(FileTransferService.ExtrasGroupOwnerAddress,
@@ -86,7 +87,7 @@ namespace com.example.android.wifidirect
             _info = info;
 
             View.Visibility = ViewStates.Visible;
-            
+
             // The owner IP is now known.
             var view = _contentView.FindViewById<TextView>(Resource.Id.group_owner);
             view.Text = Resources.GetString(Resource.String.group_owner_text)
@@ -102,45 +103,8 @@ namespace com.example.android.wifidirect
             // socket.
             if (_info.GroupFormed && _info.IsGroupOwner)
             {
-                Task.Factory.StartNew(() =>
-                    {
-                        try
-                        {
-                            var serverSocket = new ServerSocket(8988);
-                            Log.Debug(WiFiDirectActivity.Tag, "Server: Socket opened");
-                            var client = serverSocket.Accept();
-                            Log.Debug(WiFiDirectActivity.Tag, "Server: connection done");
-                            var f = new File(Environment.ExternalStorageDirectory + "/"
-                                             + Activity.PackageName + "/wifip2pshared-" + DateTime.Now.Ticks + ".jpg");
-                            var dirs = new File(f.Parent);
-                            if (!dirs.Exists())
-                                dirs.Mkdirs();
-                            f.CreateNewFile();
-
-                            Log.Debug(WiFiDirectActivity.Tag, "Server: copying files " + f);
-                            var inputStream = client.InputStream;
-                            CopyFile(inputStream, new FileStream(f.ToString(), FileMode.OpenOrCreate));
-                            serverSocket.Close();
-                            return f.AbsolutePath;
-                        }
-                        catch (IOException e)
-                        {
-                            Log.Error(WiFiDirectActivity.Tag, e.Message);
-                            return null;
-                        }
-                    })
-                    .ContinueWith(result =>
-                    {
-                        if (result != null)
-                        {
-                            _contentView.FindViewById<TextView>(Resource.Id.status_text).Text = "File copied - " +
-                                                                                                result.Result;
-                            var intent = new Intent();
-                            intent.SetAction(Intent.ActionView);
-                            intent.SetDataAndType(Android.Net.Uri.Parse("file://" + result.Result), "image/*");
-                            Activity.StartActivity(intent);
-                        }
-                    });
+                var server = new WebServerService(Activity);
+                server.Start();
             }
             else if (_info.GroupFormed)
             {
